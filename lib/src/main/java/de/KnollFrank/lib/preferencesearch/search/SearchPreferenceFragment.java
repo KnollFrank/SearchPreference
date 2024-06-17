@@ -1,7 +1,6 @@
 package de.KnollFrank.lib.preferencesearch.search;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.SearchView;
 
 import androidx.annotation.IdRes;
@@ -42,11 +41,16 @@ public class SearchPreferenceFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        final View view = requireView();
-        final PreferenceScreenWithHosts preferenceScreenWithHosts =
-                this
-                        .getPreferencesProvider(R.id.dummyFragmentContainerView)
-                        .getPreferenceScreenWithHosts();
+        final PreferencesProviderTask preferencesProviderTask =
+                new PreferencesProviderTask(
+                        getPreferencesProvider(R.id.dummyFragmentContainerView),
+                        requireActivity()::runOnUiThread,
+                        this::doWithPreferenceScreenWithHosts,
+                        getContext());
+        preferencesProviderTask.execute();
+    }
+
+    private void doWithPreferenceScreenWithHosts(final PreferenceScreenWithHosts preferenceScreenWithHosts) {
         final SearchResultsPreferenceFragment searchResultsPreferenceFragment =
                 SearchResultsPreferenceFragment.newInstance(
                         searchConfiguration.fragmentContainerViewId,
@@ -58,7 +62,7 @@ public class SearchPreferenceFragment extends Fragment {
                 R.id.searchResultsFragmentContainerView,
                 true);
         {
-            final SearchView searchView = view.findViewById(R.id.searchView);
+            final SearchView searchView = requireView().findViewById(R.id.searchView);
             SearchViewConfigurer.configureSearchView(
                     searchView,
                     searchConfiguration.textHint,
