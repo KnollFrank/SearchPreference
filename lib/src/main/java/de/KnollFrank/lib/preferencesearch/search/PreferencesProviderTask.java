@@ -4,26 +4,26 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 import java.util.function.Consumer;
 
 import de.KnollFrank.lib.preferencesearch.PreferenceScreenWithHosts;
 import de.KnollFrank.lib.preferencesearch.PreferencesProvider;
+import de.KnollFrank.lib.preferencesearch.common.OnUiThreadRunner;
 
+// FK-TODO: make this class which shows a dialog a wrapper class
 class PreferencesProviderTask extends AsyncTask<Void, Void, PreferenceScreenWithHosts> {
 
     private final PreferencesProvider preferencesProvider;
-    private final Consumer<Runnable> runOnUiThread;
+    private final OnUiThreadRunner onUiThreadRunner;
     private final Consumer<PreferenceScreenWithHosts> onPostExecute;
     private final ProgressDialog dialog;
 
     public PreferencesProviderTask(final PreferencesProvider preferencesProvider,
-                                   final Consumer<Runnable> runOnUiThread,
+                                   final OnUiThreadRunner onUiThreadRunner,
                                    final Consumer<PreferenceScreenWithHosts> onPostExecute,
                                    final Context context) {
         this.preferencesProvider = preferencesProvider;
-        this.runOnUiThread = runOnUiThread;
+        this.onUiThreadRunner = onUiThreadRunner;
         this.onPostExecute = onPostExecute;
         this.dialog = createProgressDialog(context);
     }
@@ -35,15 +35,7 @@ class PreferencesProviderTask extends AsyncTask<Void, Void, PreferenceScreenWith
 
     @Override
     protected PreferenceScreenWithHosts doInBackground(final Void... voids) {
-//        try {
-//            TimeUnit.SECONDS.sleep(5);
-//        } catch (final InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-        final FutureTask<PreferenceScreenWithHosts> task =
-                new FutureTask<>(preferencesProvider::getPreferenceScreenWithHosts);
-        runOnUiThread.accept(task);
-        return getPreferenceScreenWithHosts(task);
+        return onUiThreadRunner.runOnUiThread(preferencesProvider::getPreferenceScreenWithHosts);
     }
 
     @Override
@@ -60,13 +52,5 @@ class PreferencesProviderTask extends AsyncTask<Void, Void, PreferenceScreenWith
         dialog.setIndeterminate(true);
         dialog.setCanceledOnTouchOutside(false);
         return dialog;
-    }
-
-    private static PreferenceScreenWithHosts getPreferenceScreenWithHosts(final FutureTask<PreferenceScreenWithHosts> task) {
-        try {
-            return task.get();
-        } catch (final ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
