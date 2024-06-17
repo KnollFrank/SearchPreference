@@ -3,9 +3,6 @@ package de.KnollFrank.lib.preferencesearch.common;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Handler;
-
-import org.threeten.bp.Duration;
 
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
@@ -17,8 +14,6 @@ public class LongRunningUiTask<V> extends AsyncTask<Void, Void, V> {
     private final Consumer<V> doWithUiResult;
     private final OnUiThreadRunner onUiThreadRunner;
     private final ProgressDialog dialog;
-    private final Runnable showDialog;
-    private final Handler handler;
 
     public LongRunningUiTask(final Callable<V> calculateUiResult,
                              final Consumer<V> doWithUiResult,
@@ -28,13 +23,11 @@ public class LongRunningUiTask<V> extends AsyncTask<Void, Void, V> {
         this.doWithUiResult = doWithUiResult;
         this.onUiThreadRunner = onUiThreadRunner;
         this.dialog = createProgressDialog(context);
-        this.showDialog = dialog::show;
-        this.handler = new Handler();
     }
 
     @Override
     protected void onPreExecute() {
-        showDialogDelayed(Duration.ofMillis(0));
+        dialog.show();
     }
 
     @Override
@@ -44,7 +37,7 @@ public class LongRunningUiTask<V> extends AsyncTask<Void, Void, V> {
 
     @Override
     protected void onPostExecute(final V result) {
-        hideDialog();
+        dialog.dismiss();
         doWithUiResult.accept(result);
     }
 
@@ -56,14 +49,5 @@ public class LongRunningUiTask<V> extends AsyncTask<Void, Void, V> {
         dialog.setIndeterminate(true);
         dialog.setCanceledOnTouchOutside(false);
         return dialog;
-    }
-
-    private void showDialogDelayed(final Duration delay) {
-        handler.postDelayed(showDialog, delay.toMillis());
-    }
-
-    private void hideDialog() {
-        handler.removeCallbacks(showDialog);
-        dialog.dismiss();
     }
 }
