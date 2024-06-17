@@ -34,7 +34,7 @@ public class LongRunningUiTask<V> extends AsyncTask<Void, Void, V> {
 
     @Override
     protected void onPreExecute() {
-        showDialogDelayed(Duration.ofMillis(500));
+        showDialogDelayed(Duration.ofMillis(0));
     }
 
     @Override
