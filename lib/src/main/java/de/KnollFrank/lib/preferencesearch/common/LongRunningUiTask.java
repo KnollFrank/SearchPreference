@@ -41,7 +41,7 @@ public class LongRunningUiTask<V> extends AsyncTask<Void, Void, V> {
         doWithUiResult.accept(result);
     }
 
-    private ProgressDialog createProgressDialog(final Context context) {
+    private static ProgressDialog createProgressDialog(final Context context) {
         final ProgressDialog dialog = new ProgressDialog(context);
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog.setTitle("Loading");
