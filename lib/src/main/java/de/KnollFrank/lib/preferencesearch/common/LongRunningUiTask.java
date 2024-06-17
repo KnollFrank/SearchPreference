@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-// FK-TODO: make this class which shows a dialog a wrapper class
 public class LongRunningUiTask<V> extends AsyncTask<Void, Void, V> {
 
     private final Callable<V> calculateUiResult;
