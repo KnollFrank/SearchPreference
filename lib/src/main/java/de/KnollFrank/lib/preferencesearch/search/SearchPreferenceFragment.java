@@ -16,6 +16,7 @@ import de.KnollFrank.lib.preferencesearch.R;
 import de.KnollFrank.lib.preferencesearch.SearchConfiguration;
 import de.KnollFrank.lib.preferencesearch.SearchConfigurations;
 import de.KnollFrank.lib.preferencesearch.common.Keyboard;
+import de.KnollFrank.lib.preferencesearch.common.LongRunningUiTask;
 import de.KnollFrank.lib.preferencesearch.common.OnUiThreadRunnerFactory;
 import de.KnollFrank.lib.preferencesearch.results.SearchResultsPreferenceFragment;
 
@@ -42,13 +43,13 @@ public class SearchPreferenceFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        final PreferencesProviderTask preferencesProviderTask =
-                new PreferencesProviderTask(
-                        getPreferencesProvider(R.id.dummyFragmentContainerView),
-                        OnUiThreadRunnerFactory.fromActivity(requireActivity()),
+        final LongRunningUiTask<PreferenceScreenWithHosts> longRunningUiTask =
+                new LongRunningUiTask<>(
+                        getPreferencesProvider(R.id.dummyFragmentContainerView)::getPreferenceScreenWithHosts,
                         this::doWithPreferenceScreenWithHosts,
+                        OnUiThreadRunnerFactory.fromActivity(requireActivity()),
                         getContext());
-        preferencesProviderTask.execute();
+        longRunningUiTask.execute();
     }
 
     private void doWithPreferenceScreenWithHosts(final PreferenceScreenWithHosts preferenceScreenWithHosts) {
